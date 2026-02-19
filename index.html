@@ -1,0 +1,827 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KidsTube</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg-main: #FFF8E7;
+    --bg-card: #FFFFFF;
+    --bg-nav: #FF6B6B;
+    --bg-search: #FFF0D0;
+    --text-primary: #2D3436;
+    --text-secondary: #636E72;
+    --text-muted: #B2BEC3;
+    --accent-red: #FF6B6B;
+    --accent-yellow: #FECA57;
+    --accent-green: #55E6C1;
+    --accent-blue: #54A0FF;
+    --accent-purple: #A29BFE;
+    --accent-pink: #FD79A8;
+    --accent-orange: #FF9F43;
+    --shadow-soft: 0 4px 15px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+  }
+
+  .dark {
+    --bg-main: #1A1A2E;
+    --bg-card: #16213E;
+    --bg-nav: #E94560;
+    --bg-search: #0F3460;
+    --text-primary: #EAEAEA;
+    --text-secondary: #A0A0BC;
+    --text-muted: #5A5A7A;
+    --shadow-soft: 0 4px 15px rgba(0,0,0,0.3);
+    --shadow-hover: 0 8px 25px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: var(--bg-nav);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(255,107,107,0.3);
+  }
+
+  .dark .header { box-shadow: 0 4px 20px rgba(233,69,96,0.3); }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: logoBounce 3s ease-in-out infinite;
+  }
+
+  @keyframes logoBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .logo-icon i { color: var(--accent-red); font-size: 20px; }
+  .logo-text {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: #FFF;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+
+  .search-bar {
+    flex: 1;
+    max-width: 420px;
+    position: relative;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border-radius: 50px;
+    border: 3px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.9);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  .dark .search-bar input {
+    background: var(--bg-search);
+    border-color: rgba(255,255,255,0.15);
+    color: var(--text-primary);
+  }
+
+  .search-bar input::placeholder { color: #B0B0B0; }
+  .search-bar input:focus { border-color: #FFF; transform: scale(1.02); }
+
+  .search-bar button {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-yellow);
+    color: #FFF;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .search-bar button:hover { transform: translateY(-50%) scale(1.1); }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .main-content::-webkit-scrollbar { width: 8px; }
+  .main-content::-webkit-scrollbar-track { background: transparent; }
+  .main-content::-webkit-scrollbar-thumb {
+    background: var(--accent-pink);
+    border-radius: 10px;
+  }
+
+  /* ===== CATEGORIES ===== */
+  .categories {
+    padding: 14px 16px 8px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .categories::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    border-radius: 50px;
+    border: 3px solid transparent;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.25s;
+    white-space: nowrap;
+    color: #FFF;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .cat-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+  .cat-btn.active { border-color: #FFF; transform: scale(1.05); }
+  .cat-btn .cat-emoji { font-size: 18px; }
+
+  /* ===== VIDEO GRID ===== */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    padding: 16px;
+  }
+
+  .video-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: cardIn 0.5s ease-out backwards;
+  }
+
+  .video-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .video-card:nth-child(1) { animation-delay: 0.05s; }
+  .video-card:nth-child(2) { animation-delay: 0.1s; }
+  .video-card:nth-child(3) { animation-delay: 0.15s; }
+  .video-card:nth-child(4) { animation-delay: 0.2s; }
+  .video-card:nth-child(5) { animation-delay: 0.25s; }
+  .video-card:nth-child(6) { animation-delay: 0.3s; }
+  .video-card:nth-child(7) { animation-delay: 0.35s; }
+  .video-card:nth-child(8) { animation-delay: 0.4s; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .thumbnail canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .thumb-duration {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.7);
+    color: #FFF;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0);
+    transition: background 0.3s;
+  }
+
+  .play-overlay i {
+    font-size: 44px;
+    color: rgba(255,255,255,0);
+    transition: all 0.3s;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  .video-card:hover .play-overlay { background: rgba(0,0,0,0.25); }
+  .video-card:hover .play-overlay i { color: rgba(255,255,255,0.95); transform: scale(1.1); }
+
+  .video-info {
+    padding: 12px 14px 14px;
+  }
+
+  .video-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .video-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .channel-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #FFF;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .video-views { color: var(--text-muted); }
+
+  /* ===== VIDEO PLAYER OVERLAY ===== */
+  .player-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .player-overlay.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .player-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .back-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: #FFF;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+
+  .player-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: #FFF;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .player-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px 16px;
+  }
+
+  .player-container iframe {
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    border-radius: var(--radius-lg);
+    border: none;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  .related-section {
+    padding: 0 16px 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .related-title {
+    font-family: 'Fredoka', sans-serif;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .related-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+
+  .related-scroll::-webkit-scrollbar { display: none; }
+
+  .related-card {
+    flex-shrink: 0;
+    width: 180px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    transition: all 0.2s;
+  }
+
+  .related-card:hover { transform: scale(1.05); background: rgba(255,255,255,0.15); }
+
+  .related-card canvas {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: block;
+  }
+
+  .related-card-title {
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    animation: cardIn 0.5s ease-out;
+  }
+
+  .empty-state.active { display: flex; }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    animation: logoBounce 2s ease-in-out infinite;
+  }
+
+  .empty-text {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .empty-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* ===== LOADING ===== */
+  .loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-yellow), var(--accent-pink), var(--accent-blue), var(--accent-green));
+    background-size: 300% 100%;
+    z-index: 9999;
+    animation: loadSlide 1.5s linear infinite;
+    display: none;
+    width: 100%;
+  }
+
+  .loading-bar.active { display: block; }
+
+  @keyframes loadSlide {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* ===== FLOATING DECORATIONS ===== */
+  .float-deco {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0.07;
+    font-size: 80px;
+    z-index: 0;
+    animation: floatSlow 20s ease-in-out infinite;
+  }
+
+  .float-deco:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+  .float-deco:nth-child(2) { top: 60%; right: 8%; animation-delay: -7s; font-size: 60px; }
+  .float-deco:nth-child(3) { bottom: 10%; left: 50%; animation-delay: -12s; font-size: 50px; }
+
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(5deg); }
+    75% { transform: translateY(15px) rotate(-5deg); }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .logo-text { display: none; }
+    .video-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 12px;
+    }
+    .header { padding: 10px 12px; }
+    .categories { padding: 10px 12px 6px; }
+    .player-container iframe { border-radius: var(--radius-md); }
+    .related-section { max-height: 160px; }
+  }
+
+  @media (min-width: 601px) and (max-width: 900px) {
+    .video-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<!-- Floating decorations -->
+<div class="float-deco">🌟</div>
+<div class="float-deco">🎈</div>
+<div class="float-deco">🦋</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo" onclick="goHome()">
+    <div class="logo-icon"><i class="fas fa-play"></i></div>
+    <span class="logo-text">KidsTube</span>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search fun videos..." onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()"><i class="fas fa-search"></i></button>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="categories" id="categories"></div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-text">No videos found!</div>
+    <div class="empty-sub">Try a different search or pick a category</div>
+  </div>
+  <div class="video-grid" id="videoGrid"></div>
+</div>
+
+<!-- VIDEO PLAYER OVERLAY -->
+<div class="player-overlay" id="playerOverlay">
+  <div class="player-header">
+    <button class="back-btn" onclick="closePlayer()"><i class="fas fa-arrow-left"></i></button>
+    <div class="player-title" id="playerTitle"></div>
+  </div>
+  <div class="player-container">
+    <iframe id="playerFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+  </div>
+  <div class="related-section">
+    <div class="related-title">🎬 Watch Next</div>
+    <div class="related-scroll" id="relatedScroll"></div>
+  </div>
+</div>
+
+<script>
+// ===== DARK MODE =====
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.documentElement.classList.add('dark');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+  document.documentElement.classList.toggle('dark', event.matches);
+});
+
+// ===== VIDEO DATA =====
+const categories = [
+  { id: 'all', label: 'All', emoji: '✨', color: '#FF6B6B' },
+  { id: 'animals', label: 'Animals', emoji: '🐾', color: '#55E6C1' },
+  { id: 'cartoons', label: 'Cartoons', emoji: '🎨', color: '#A29BFE' },
+  { id: 'music', label: 'Music', emoji: '🎵', color: '#FD79A8' },
+  { id: 'learning', label: 'Learning', emoji: '📚', color: '#54A0FF' },
+  { id: 'science', label: 'Science', emoji: '🔬', color: '#FF9F43' },
+  { id: 'stories', label: 'Stories', emoji: '📖', color: '#FECA57' },
+  { id: 'crafts', label: 'Crafts', emoji: '✂️', color: '#6C5CE7' },
+];
+
+const videos = [
+  { id: 'XqZsoesa55w', title: 'Baby Shark Dance', channel: 'Pinkfong', cat: 'music', views: '14B', dur: '2:16', colors: ['#00B4D8','#0077B6','#FFD166'], icon: '🦈' },
+  { id: 'eDL1OPt3JoM', title: 'Amazing Animal Facts for Kids', channel: 'NatGeo Kids', cat: 'animals', views: '28M', dur: '5:42', colors: ['#2D6A4F','#52B788','#95D5B2'], icon: '🦁' },
+  { id: 'CE2Mwx4HPGE', title: 'Learning Colors with Surprise Eggs', channel: 'ChuChu TV', cat: 'learning', views: '320M', dur: '12:05', colors: ['#FECA57','#FF6B6B','#A29BFE'], icon: '🥚' },
+  { id: 'e_04ZrNroTo', title: 'Wheels on the Bus', channel: 'CoComelon', cat: 'music', views: '5.6B', dur: '3:28', colors: ['#FF9F43','#FECA57','#55E6C1'], icon: '🚌' },
+  { id: 'hFZFjoX2cGk', title: 'How Volcanoes Erupt', channel: 'SciShow Kids', cat: 'science', views: '12M', dur: '4:51', colors: ['#E63946','#FF8C42','#FFD166'], icon: '🌋' },
+  { id: 'mFFoEEkMTFY', title: 'Three Little Pigs Story', channel: 'Fairy Tales', cat: 'stories', views: '95M', dur: '8:33', colors: ['#FD79A8','#E17055','#FDCB6E'], icon: '🐷' },
+  { id: '4jDPIvCOxyU', title: 'DIY Paper Butterflies', channel: 'Kids Craft', cat: 'crafts', views: '8M', dur: '7:10', colors: ['#6C5CE7','#A29BFE','#FD79A8'], icon: '🦋' },
+  { id: 'ZbZSe6N_BXs', title: 'Funny Cats Compilation', channel: 'Pet Central', cat: 'animals', views: '210M', dur: '10:22', colors: ['#FF9F43','#FECA57','#FFE8A1'], icon: '🐱' },
+  { id: '1ZYbU82GVz4', title: 'Old MacDonald Had a Farm', channel: 'Nursery Rhymes', cat: 'music', views: '1.2B', dur: '3:55', colors: ['#55E6C1','#00B894','#FECA57'], icon: '🐮' },
+  { id: 'M2cckDmNLMI', title: 'Solar System for Kids', channel: 'Space Kids', cat: 'science', views: '45M', dur: '11:15', colors: ['#0C2461','#1B4F72','#54A0FF'], icon: '🚀' },
+  { id: 'JkaxUblCGz0', title: 'Learn to Count 1 to 100', channel: 'Number Fun', cat: 'learning', views: '180M', dur: '15:30', colors: ['#54A0FF','#00B4D8','#55E6C1'], icon: '🔢' },
+  { id: 'kNw8V_Fkw28', title: 'Goldilocks & Three Bears', channel: 'Story Time', cat: 'stories', views: '67M', dur: '9:44', colors: ['#FECA57','#FF9F43','#E17055'], icon: '🐻' },
+  { id: 'DHfRfU3XUEo', title: 'Easy Origami Animals', channel: 'Paper Magic', cat: 'crafts', views: '15M', dur: '6:28', colors: ['#E17055','#FF6B6B','#FD79A8'], icon: '🦊' },
+  { id: 'LFGKMqnLfQo', title: 'ABC Phonics Song', channel: 'KidsTV', cat: 'learning', views: '890M', dur: '4:12', colors: ['#A29BFE','#6C5CE7','#FD79A8'], icon: '🔤' },
+  { id: 'COxMGka2Mxc', title: 'Cute Puppies Playing', channel: 'Paw Pals', cat: 'animals', views: '55M', dur: '6:03', colors: ['#DFE6E9','#B2BEC3','#FFB8B8'], icon: '🐶' },
+  { id: 'b2VJ1gMkhqQ', title: 'Rainbow Slime Making', channel: 'Crafty Kids', cat: 'crafts', views: '42M', dur: '8:55', colors: ['#FF6B6B','#FECA57','#55E6C1'], icon: '🌈' },
+  { id: '0j6BFceGfEo', title: 'Dinosaur World Adventure', channel: 'Dino Kids', cat: 'science', views: '78M', dur: '13:20', colors: ['#2D6A4F','#588157','#A7C957'], icon: '🦕' },
+  { id: 'TqLcHEqShE4', title: 'Cinderella Fairy Tale', channel: 'Dream Stories', cat: 'stories', views: '130M', dur: '11:07', colors: ['#54A0FF','#A29BFE','#FD79A8'], icon: '👸' },
+];
+
+let activeCategory = 'all';
+let currentVideoId = null;
+
+// ===== RENDER CATEGORIES =====
+function renderCategories() {
+  const container = document.getElementById('categories');
+  container.innerHTML = categories.map(c =>
+    `<button class="cat-btn ${c.id === activeCategory ? 'active' : ''}"
+       style="background:${c.color}"
+       onclick="selectCategory('${c.id}')">
+      <span class="cat-emoji">${c.emoji}</span>${c.label}
+    </button>`
+  ).join('');
+}
+
+function selectCategory(id) {
+  activeCategory = id;
+  renderCategories();
+  renderVideos();
+  document.getElementById('searchInput').value = '';
+}
+
+// ===== DRAW THUMBNAIL =====
+function drawThumbnail(canvas, video) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = 400;
+  const h = canvas.height = 225;
+
+  // Gradient background
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, video.colors[0]);
+  grad.addColorStop(0.5, video.colors[1]);
+  grad.addColorStop(1, video.colors[2]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Decorative circles
+  ctx.globalAlpha = 0.12;
+  for (let i = 0; i < 6; i++) {
+    ctx.beginPath();
+    const cx = Math.random() * w;
+    const cy = Math.random() * h;
+    const r = 20 + Math.random() * 60;
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFF';
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Wavy pattern
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.7);
+  for (let x = 0; x <= w; x += 5) {
+    ctx.lineTo(x, h * 0.7 + Math.sin(x * 0.03) * 15);
+  }
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fill();
+
+  // Big emoji icon
+  ctx.font = '72px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.2)';
+  ctx.shadowBlur = 10;
+  ctx.fillText(video.icon, w / 2, h / 2 - 5);
+  ctx.shadowBlur = 0;
+}
+
+// ===== RENDER VIDEOS =====
+function renderVideos(filter) {
+  const grid = document.getElementById('videoGrid');
+  const empty = document.getElementById('emptyState');
+
+  let filtered = videos;
+  if (activeCategory !== 'all') {
+    filtered = filtered.filter(v => v.cat === activeCategory);
+  }
+  if (filter) {
+    const q = filter.toLowerCase();
+    filtered = filtered.filter(v =>
+      v.title.toLowerCase().includes(q) ||
+      v.channel.toLowerCase().includes(q) ||
+      v.cat.toLowerCase().includes(q)
+    );
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.add('active');
+    return;
+  }
+
+  empty.classList.remove('active');
+
+  grid.innerHTML = filtered.map(v => {
+    const catObj = categories.find(c => c.id === v.cat);
+    const avatarColor = catObj ? catObj.color : '#54A0FF';
+    return `<div class="video-card" onclick="playVideo('${v.id}')">
+      <div class="thumbnail">
+        <canvas data-vid="${v.id}"></canvas>
+        <span class="thumb-duration">${v.dur}</span>
+        <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${v.title}</div>
+        <div class="video-meta">
+          <div class="channel-avatar" style="background:${avatarColor}">${v.channel[0]}</div>
+          <span>${v.channel}</span>
+          <span class="video-views">• ${v.views} views</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Draw thumbnails
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('canvas[data-vid]').forEach(canvas => {
+      const vid = videos.find(v => v.id === canvas.dataset.vid);
+      if (vid) drawThumbnail(canvas, vid);
+    });
+  });
+}
+
+// ===== SEARCH =====
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  activeCategory = 'all';
+  renderCategories();
+  renderVideos(q);
+}
+
+function goHome() {
+  activeCategory = 'all';
+  document.getElementById('searchInput').value = '';
+  renderCategories();
+  renderVideos();
+  document.getElementById('mainContent').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== PLAYER =====
+function playVideo(id) {
+  const video = videos.find(v => v.id === id);
+  if (!video) return;
+
+  currentVideoId = id;
+  document.getElementById('playerTitle').textContent = video.title;
+  document.getElementById('playerFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+  document.getElementById('playerOverlay').classList.add('active');
+
+  // Related videos
+  const related = videos.filter(v => v.id !== id).sort(() => Math.random() - 0.5).slice(0, 8);
+  const scroll = document.getElementById('relatedScroll');
+  scroll.innerHTML = related.map(v =>
+    `<div class="related-card" onclick="playVideo('${v.id}')">
+      <canvas data-rvid="${v.id}"></canvas>
+      <div class="related-card-title">${v.title}</div>
+    </div>`
+  ).join('');
+
+  requestAnimationFrame(() => {
+    scroll.querySelectorAll('canvas[data-rvid]').forEach(canvas => {
+      const vid = videos.find(v => v.id === canvas.dataset.rvid);
+      if (vid) {
+        canvas.width = 260;
+        canvas.height = 146;
+        drawThumbnail(canvas, vid);
+      }
+    });
+  });
+}
+
+function closePlayer() {
+  document.getElementById('playerOverlay').classList.remove('active');
+  document.getElementById('playerFrame').src = '';
+  currentVideoId = null;
+}
+
+// Keyboard close
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && currentVideoId) closePlayer();
+});
+
+// ===== INIT =====
+renderCategories();
+renderVideos();
+</script>
+
+
+
+</body></html>
